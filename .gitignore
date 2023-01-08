@@ -1,0 +1,5 @@
+# db config file is confidential contents
+db_config.json
+
+# node_modules directory does not need to be shared
+node_modules/
