@@ -12,9 +12,9 @@ router.get('/', (req, res, next) => {
             if(err) {
                 console.log('[ERROR] Select Table "DEPT" has problem\n' + err)
                 res.send({result: "FAIL", msg: '[ERROR] Select Table "DEPT" has problem\n' + err})
+            } else {
+                res.send({result: "SUCCESS", deptList: rows})
             }
-    
-            res.send({result: "SUCCESS", deptList: rows})
         })
     
         conn.release();
@@ -37,9 +37,9 @@ router.post('/create', (req, res, next) => {
             if(err) {
                 console.log('[ERROR] Insert Table "DEPT" has problem\n' + err)
                 res.send({result: "FAIL", msg: '[ERROR] Insert Table "DEPT" has problem\n' + err})
+            } else {
+                res.send({result: "SUCCESS"})
             }
-
-            res.send({result: "SUCCESS"})
         })
 
         conn.release();
@@ -67,9 +67,9 @@ router.post('/modify', (req, res, next) => {
             if(err) {
                 console.log('[ERROR] Update Table "DEPT" has problem\n' + err)
                 res.send({result: "FAIL", msg: '[ERROR] Update Table "DEPT" has problem\n' + err})
+            } else {
+                res.send({result: "SUCCESS"})
             }
-
-            res.send({result: "SUCCESS"})
         })
 
         conn.release();
@@ -92,9 +92,9 @@ router.post('/delete', (req, res, next) => {
             if(err) {
                 console.log('[ERROR] Delete Table "DEPT" has problem\n' + err)
                 res.send({result: "FAIL", msg: '[ERROR] Delete Table "DEPT" has problem\n' + err})
+            } else {
+                res.send({result: "SUCCESS"})
             }
-
-            res.send({result: "SUCCESS"})
         })
 
         conn.release();
