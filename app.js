@@ -10,6 +10,7 @@ const getConnection = require('./Config/database')
 const indexRouter = require('./Routes/index')
 const adminDeptRouter = require('./Routes/admin_dept')
 const adminCustomerRouter = require('./Routes/admin_customer')
+const pipelineRouter = require('./Routes/pipeline')
 // <------------------/Router------------------>
 
 // <------------------Express Settings------------------>
@@ -22,6 +23,7 @@ app.use(bodyParser.json())
 app.use('/', indexRouter)
 app.use('/admin/dept', adminDeptRouter)
 app.use('/admin/customer', adminCustomerRouter)
+app.use('/pipeline', pipelineRouter)
 
 app.listen(port, () => {
     console.log(`CRM App listening at http://localhost:${port}`)
