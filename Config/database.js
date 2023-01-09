@@ -1,6 +1,5 @@
 const mysql = require('mysql');
 const config = require('./db_config.json');
-const fs = require('fs');
 
 // config.ssl = {ca: fs.readFileSync(__dirname + '/BaltimoreCyberTrustRoot.crt.pem')};
 let pool = mysql.createPool(config);

@@ -60,7 +60,7 @@ router.post('/modify', (req, res, next) => {
 
     getConnection((conn) => {
         var sql = 'UPDATE DEPT SET deptName=? WHERE deptID=?'
-        var body= req.body;
+        var body = req.body;
         var param = [body.newDeptName, body.deptID];
 
         conn.query(sql, param, (err) => {
@@ -76,7 +76,7 @@ router.post('/modify', (req, res, next) => {
     })
 })
 
-router.post('delete', (req, res, next) => {
+router.post('/delete', (req, res, next) => {
 
     if(!req.body.deptID) {
         res.send({result: "FAIL", msg: 'deptID cannot be blank'})
@@ -84,7 +84,20 @@ router.post('delete', (req, res, next) => {
     }
 
     getConnection((conn) => {
-        var sql = 'DELETE'
+        var sql = 'DELETE FROM DEPT WHERE deptID=?'
+        var body = req.body;
+        var param = [body.deptID];
+
+        conn.query(sql, param, (err) => {
+            if(err) {
+                console.log('[ERROR] Delete Table "DEPT" has problem\n' + err)
+                res.send({result: "FAIL", msg: '[ERROR] Delete Table "DEPT" has problem\n' + err})
+            }
+
+            res.send({result: "SUCCESS"})
+        })
+
+        conn.release();
     })
 })
 
