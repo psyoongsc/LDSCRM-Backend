@@ -2,8 +2,11 @@
 // <------------------Package Define------------------>
 const express = require('express')
 const bodyParser = require('body-parser')
+const cors = require('cors')
+const fs = require('fs')
 // custom packages
 const getConnection = require('./Config/database')
+const { logger } = require('./Config/winston')
 // <------------------/Package Define------------------>
 
 // <------------------Router------------------>
@@ -19,6 +22,7 @@ const port = 3000
 // <------------------/Express Settings------------------>
 
 app.use(bodyParser.json())
+app.use(cors())
 
 app.use('/', indexRouter)
 app.use('/admin/dept', adminDeptRouter)
