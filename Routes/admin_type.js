@@ -102,4 +102,36 @@ router.post('/delete', (req, res, next) => {
     })
 })
 
+router.post('/deletes', (req, res, next) => {
+    if(!req.body.typeIDs) {
+        logger.error('Request /admin/type/deletes : typeIDs cannot be blank')
+        res.send({result: "FAIL", msg: 'typeIDs cannot be blank'})
+        return;
+    }
+
+    getConnection((conn) => {
+        var sql = 'DELETE FROM TYPE WHERE typeID=?'
+        var body = req.body;
+
+        var num;
+        for(num=0; num<req.body.typeIDs.length; num++) {
+            var param = [req.body.typeIDs[num]];
+
+            conn.query(sql, param, (err) => {
+                if(err) {
+                    logger.error('Request /admin/type/deletes : Delete Table "TYPE" has problem\n' + err)
+                    res.send({result: "FAIL", msg: '[ERROR] Delete Table "TYPE" has problem\n' + err})
+
+                    conn.release();
+                    return;
+                }
+            })
+        }
+        logger.info('Request /admin/type/deletes : SUCCESS')
+        res.send({result: "SUCCESS"})
+
+        conn.release();
+    })
+})
+
 module.exports = router;

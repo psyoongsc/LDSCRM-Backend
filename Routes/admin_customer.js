@@ -114,4 +114,36 @@ router.post('/delete', (req, res, next) => {
     })
 })
 
+router.post('/deletes', (req, res, next) => {
+    if(!req.body.customerIDs) {
+        logger.error('Request /admin/customer/deletes : customerIDs cannot be blank')
+        res.send({result: "FAIL", msg: 'customerIDs cannot be blank'})
+        return;
+    }
+
+    getConnection((conn) => {
+        var sql = 'DELETE FROM CUSTOMER WHERE customerID=?'
+        var body = req.body;
+
+        var num;
+        for(num=0; num<req.body.customerIDs.length; num++) {
+            var param = [req.body.customerIDs[num]];
+
+            conn.query(sql, param, (err) => {
+                if(err) {
+                    logger.error('Request /admin/customer/deletes : Delete Table "CUSTOMER" has problem\n' + err)
+                    res.send({result: "FAIL", msg: '[ERROR] Delete Table "CUSTOMER" has problem\n' + err})
+
+                    conn.release();
+                    return;
+                }
+            })
+        }
+        logger.info('Request /admin/customer/deletes : SUCCESS')
+        res.send({result: "SUCCESS"})
+
+        conn.release();
+    })
+})
+
 module.exports = router;

@@ -26,8 +26,8 @@ router.post('/', (req, res, next) => {
         var sql = 'SELECT a.pipelineID, b.deptName, c.customerName, d.typeName, a.title, a.date' 
         var sql = sql + ' FROM PIPELINE a, DEPT b, CUSTOMER c, TYPE d'
         var sql = sql + ' WHERE a.deptID = b.deptID AND a.customerID = c.customerID AND a.typeID = d.typeID'
-        var sql = sql + ' AND a.date = ? ORDER BY deptName, date desc;'
-        var param = [date];
+        var sql = sql + ' AND a.date = ? AND a.isDelete = ? ORDER BY deptName, date desc;'
+        var param = [date, 'N'];
 
         conn.query(sql, param, (err, rows, fields) => {
             if(err) {
@@ -106,7 +106,7 @@ router.post('/create', (req, res, next) => {
 
     if(!body.deptID || !body.customerID || !body.typeID || !body.title || !body.date || !body.expectedSales || !body.expectedPurchase || !body.expectedProfit) {
         logger.error('Request /pipeline/create : please request with required informations (deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)')
-        res.send({result: "FAIL", msg: '[ERROR] please request with required informations (deptID, customerID, typeID, title, date)'})
+        res.send({result: "FAIL", msg: '[ERROR] please request with required informations (deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)'})
         return;
     }
 
@@ -179,6 +179,127 @@ router.post('/create', (req, res, next) => {
     }, (err) => {
         logger.error('Request /pipeline/create : Cannot create New Pipeline\n' + err)
         res.send({result: "FAIL", msg: '[ERROR] Cannot create New Pipeline\n' + err})
+    })
+})
+
+router.post('/modify/:pipelineID', (req, res, next) => {
+    var body = req.body;
+
+    if(!req.params.pipelineID || !body.deptID || !body.customerID || !body.typeID || !body.title || !body.date || !body.expectedSales || !body.expectedPurchase || !body.expectedProfit) {
+        logger.error('Request /pipeline/modify : please request with required informations (pipelineID, deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)')
+        res.send({result: "FAIL", msg: '[ERROR] please request with required informations (pipelineID, deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)'})
+        return;
+    }
+
+    var date = req.body.date;
+    const dateRegex = /^\d{4}\-\d{2}\-\d{2}$/;
+    let extractResult = date.match(dateRegex);
+    if(!extractResult) {
+        logger.error('Request /pipeline/modify : date value is not valid')
+        res.send({result: "FAIL", msg: '[ERROR] date value is not valid'})
+        return;
+    }
+
+    var updatePipeline = new Promise((resolve, reject) => getConnection((conn) => {
+        var sql = 'UPDATE PIPELINE SET deptID=?, customerID=?, typeID=?, title=?, date=?, expectedSales=?, expectedPurchase=?, expectedProfit=?, modifyAt=NOW() WHERE pipelineID=?'
+        var param = [body.deptID, body.customerID, body.typeID, body.title, body.date, body.expectedSales, body.expectedPurchase, body.expectedProfit, req.params.pipelineID]
+
+        conn.query(sql, param, (err) => {
+            if(err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        })
+
+        conn.release();
+    }))
+
+    updatePipeline.then(() => {
+        getConnection((conn) => {
+            var sql = 'DELETE FROM PIPELINE_CONTENTS WHERE pipelineID=?'
+            var param = [req.params.pipelineID]
+
+            conn.query(sql, param, (err) => {
+                if(err) {
+                    logger.error('Request /pipeline/modify : Cannot create new Pipeline\n' + err)
+                    res.send({result: "FAIL", msg: '[ERROR] Cannot create new Pipeline\n' + err})
+
+                    conn.release();
+                    return;
+                }
+            })
+
+            var seqnum;
+            for(seqnum=1; seqnum<=req.body.contents.length; seqnum++) {
+                var sql = 'INSERT INTO PIPELINE_CONTENTS(pipelineID, seqnum, font, color, content, createAt) VALUES(?, ?, ?, ?, ?, NOW())'
+                var param = [req.params.pipelineID, seqnum, req.body.contents[seqnum-1].font, req.body.contents[seqnum-1].color, req.body.contents[seqnum-1].content]
+
+                conn.query(sql, param, (err) => {
+                    if(err) {
+                        logger.error('Request /pipeline/modify : Cannot create new Pipeline Content\n' + err)
+                        res.send({result: "FAIL", msg: '[ERROR] Cannot create new Pipeline Content\n' + err})
+
+                        conn.release();
+                        return;
+                    }
+                })
+            }
+            logger.info('Request /pipeline/modify : SUCCESS')
+            res.send({result: "SUCCESS"})
+
+            conn.release();
+        })
+    }, (err) => {
+        logger.error('Request /pipeline/modify : Cannot create New Pipeline\n' + err)
+        res.send({result: "FAIL", msg: '[ERROR] Cannot create New Pipeline\n' + err})
+    })
+})
+
+router.post('/delete/:pipelineID', (req, res, next) => {
+
+    getConnection((conn) => {
+        var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW() WHERE pipelineID=?'
+        var param = ['Y', req.params.pipelineID]
+    
+        conn.query(sql, param, (err) => {
+            if(err) {
+                logger.error('Request /pipeline/delete : delete pipeline has problem\n' + err)
+                res.send({result: "FAIL", msg: '[ERROR] delete pipeline has problem\n' + err})
+            } else {
+                logger.info('Request /pipeline/delete : SUCCESS');
+                res.send({result: "SUCCESS"});
+            }
+        })
+    
+        conn.release();
+    })
+
+})
+
+router.post('/deletes', (req, res, next) => {
+
+    getConnection((conn) => {
+        var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW() WHERE pipelineID=?'
+
+        var num;
+        for(num=0; num<req.body.pipelineIDs.length; num++) {
+            var param = ['Y', req.body.pipelineIDs[num]]
+    
+            conn.query(sql, param, (err) => {
+                if(err) {
+                    logger.error('Request /pipeline/deletes : delete pipeline has problem\n' + err)
+                    res.send({result: "FAIL", msg: '[ERROR] delete pipeline has problem\n' + err})
+
+                    conn.release();
+                    return;
+                }
+            })
+        }
+        logger.info('Request /pipeline/deletes : SUCCESS');
+        res.send({result: "SUCCESS"});
+
+        conn.release();
     })
 })
 
