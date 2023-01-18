@@ -257,6 +257,12 @@ router.post('/modify/:pipelineID', (req, res, next) => {
 })
 
 router.post('/delete/:pipelineID', (req, res, next) => {
+    
+    if(!req.params.pipelineID) {
+        logger.error('Request /pipeline/delete : pipelineID is required')
+        res.send({result: "FAIL", msg: 'pipelineID is required'})
+        return;
+    }
 
     getConnection((conn) => {
         var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW() WHERE pipelineID=?'
@@ -278,6 +284,12 @@ router.post('/delete/:pipelineID', (req, res, next) => {
 })
 
 router.post('/deletes', (req, res, next) => {
+
+    if(!req.body.pipelineIDs) {
+        logger.error('Request /pipeline/deletes : pipelineIDs is required')
+        res.send({result: "FAIL", msg: 'pipelineIDs is required'})
+        return;
+    }
 
     getConnection((conn) => {
         var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW() WHERE pipelineID=?'
