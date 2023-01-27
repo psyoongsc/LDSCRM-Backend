@@ -104,7 +104,7 @@ router.post('/dateValidationCheck', (req, res, next) => {
 router.post('/create', (req, res, next) => {
     var body = req.body;
 
-    if(!body.deptID || !body.customerID || !body.typeID || !body.title || !body.date || !body.expectedSales || !body.expectedPurchase || !body.expectedProfit) {
+    if(!body.deptID || !body.customerID || !body.typeID || !body.title || !body.date || (!body.expectedSales && body.expectedSales != 0) || (!body.expectedPurchase && body.expectedPurchase != 0) || (!body.expectedProfit && body.expectedProfit != 0)) {
         logger.error('Request /pipeline/create : please request with required informations (deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)')
         res.send({result: "FAIL", msg: '[ERROR] please request with required informations (deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)'})
         return;
@@ -185,7 +185,7 @@ router.post('/create', (req, res, next) => {
 router.post('/modify/:pipelineID', (req, res, next) => {
     var body = req.body;
 
-    if(!req.params.pipelineID || !body.deptID || !body.customerID || !body.typeID || !body.title || !body.date || !body.expectedSales || !body.expectedPurchase || !body.expectedProfit) {
+    if(!req.params.pipelineID || !body.deptID || !body.customerID || !body.typeID || !body.title || !body.date || (!body.expectedSales && body.expectedSales != 0) || (!body.expectedPurchase && body.expectedPurchase != 0) || (!body.expectedProfit && body.expectedProfit != 0)) {
         logger.error('Request /pipeline/modify : please request with required informations (pipelineID, deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)')
         res.send({result: "FAIL", msg: '[ERROR] please request with required informations (pipelineID, deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit)'})
         return;
@@ -265,7 +265,7 @@ router.post('/delete/:pipelineID', (req, res, next) => {
     }
 
     getConnection((conn) => {
-        var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW() WHERE pipelineID=?'
+        var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW(), modifyAt=NOW() WHERE pipelineID=?'
         var param = ['Y', req.params.pipelineID]
     
         conn.query(sql, param, (err) => {
@@ -292,7 +292,7 @@ router.post('/deletes', (req, res, next) => {
     }
 
     getConnection((conn) => {
-        var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW() WHERE pipelineID=?'
+        var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW(), modifyAt=NOW() WHERE pipelineID=?'
 
         var num;
         for(num=0; num<req.body.pipelineIDs.length; num++) {
