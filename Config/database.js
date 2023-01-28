@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const config = require('./db_config.json');
+const { logger } = require('./winston')
 
 // config.ssl = {ca: fs.readFileSync(__dirname + '/BaltimoreCyberTrustRoot.crt.pem')};
 let pool = mysql.createPool(config);
@@ -10,7 +11,7 @@ function getConnection(callback) {
             callback(conn);
         }
         else {
-            console.log('[ERROR] get connection pool is not working. check the database server status\n' + err);
+            logger.error('get connection pool is not working. check the database server status\n' + err);
             return;
         }
     })
