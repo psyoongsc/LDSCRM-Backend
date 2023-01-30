@@ -22,7 +22,7 @@ router.post('/', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'SELECT a.pipelineID, b.deptName, c.customerName, d.typeName, a.title, a.date' 
         var sql = sql + ' FROM PIPELINE a, DEPT b, CUSTOMER c, TYPE d'
         var sql = sql + ' WHERE a.deptID = b.deptID AND a.customerID = c.customerID AND a.typeID = d.typeID'
@@ -44,7 +44,7 @@ router.post('/', (req, res, next) => {
 })
 
 router.get('/additions', (req, res, next) => {
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'SELECT deptID, deptName FROM DEPT ORDER BY deptName; '
         sql = sql + 'SELECT customerID, customerName FROM CUSTOMER ORDER BY customerName; '
         sql = sql + 'SELECT typeID, typeName FROM TYPE ORDER BY typeName'
@@ -64,7 +64,7 @@ router.get('/additions', (req, res, next) => {
 })
 
 router.get('/:pipelineID', (req, res, next) => {
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'SELECT a.pipelineID, b.deptName, c.customerName, d.typeName, a.title, a.date, a.createAt, a.modifyAt, expectedSales, expectedPurchase, expectedProfit' 
         var sql = sql + ' FROM PIPELINE a, DEPT b, CUSTOMER c, TYPE d'
         var sql = sql + ' WHERE a.deptID = b.deptID AND a.customerID = c.customerID AND a.typeID = d.typeID'
@@ -119,7 +119,7 @@ router.post('/create', (req, res, next) => {
         return;
     }
 
-    var getLastID = new Promise((resolve, reject) => getConnection((conn) => {
+    var getLastID = new Promise((resolve, reject) => getConnection(res, (conn) => {
         var sql = 'SELECT max(pipelineID) as last_id FROM PIPELINE;'
 
         conn.query(sql, (err, rows, fields) => {
@@ -134,7 +134,7 @@ router.post('/create', (req, res, next) => {
         conn.release();
     }))
 
-    var createPipeline = new Promise((resolve, reject) => getConnection((conn) => {
+    var createPipeline = new Promise((resolve, reject) => getConnection(res, (conn) => {
         var sql = 'INSERT INTO PIPELINE(deptID, customerID, typeID, title, date, expectedSales, expectedPurchase, expectedProfit, createAt, modifyAt, isDelete) VALUES(?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)'
         var param = [body.deptID, body.customerID, body.typeID, body.title, body.date, body.expectedSales, body.expectedPurchase, body.expectedProfit, 'N'];
 
@@ -151,7 +151,7 @@ router.post('/create', (req, res, next) => {
 
     createPipeline.then(() => {
         getLastID.then((last_id) => {
-            getConnection((conn) => {
+            getConnection(res, (conn) => {
                 var seqnum;
                 for(seqnum=1; seqnum<=req.body.contents.length; seqnum++) {
                     var sql = 'INSERT INTO PIPELINE_CONTENTS(pipelineID, seqnum, font, color, content, createAt) VALUES(?, ?, ?, ?, ?, NOW())'
@@ -200,7 +200,7 @@ router.post('/modify/:pipelineID', (req, res, next) => {
         return;
     }
 
-    var updatePipeline = new Promise((resolve, reject) => getConnection((conn) => {
+    var updatePipeline = new Promise((resolve, reject) => getConnection(res, (conn) => {
         var sql = 'UPDATE PIPELINE SET deptID=?, customerID=?, typeID=?, title=?, date=?, expectedSales=?, expectedPurchase=?, expectedProfit=?, modifyAt=NOW() WHERE pipelineID=?'
         var param = [body.deptID, body.customerID, body.typeID, body.title, body.date, body.expectedSales, body.expectedPurchase, body.expectedProfit, req.params.pipelineID]
 
@@ -216,7 +216,7 @@ router.post('/modify/:pipelineID', (req, res, next) => {
     }))
 
     updatePipeline.then(() => {
-        getConnection((conn) => {
+        getConnection(res, (conn) => {
             var sql = 'DELETE FROM PIPELINE_CONTENTS WHERE pipelineID=?'
             var param = [req.params.pipelineID]
 
@@ -264,7 +264,7 @@ router.post('/delete/:pipelineID', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW(), modifyAt=NOW() WHERE pipelineID=?'
         var param = ['Y', req.params.pipelineID]
     
@@ -291,7 +291,7 @@ router.post('/deletes', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'UPDATE PIPELINE SET isDelete=?, deleteAt=NOW(), modifyAt=NOW() WHERE pipelineID=?'
 
         var num;

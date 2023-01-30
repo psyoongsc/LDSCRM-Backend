@@ -6,7 +6,7 @@ const { logger } = require('../Config/winston')
 
 router.get('/', (req, res, next) => {
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'SELECT typeID, typeName FROM TYPE ORDER BY typeName;';
 
         conn.query(sql, (err, rows, fields) => {
@@ -29,7 +29,7 @@ router.post('/create', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'INSERT INTO TYPE(typeName) VALUES(?);';
         var body = req.body;
         var param = [body.typeName];
@@ -59,7 +59,7 @@ router.post('/modify', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'UPDATE TYPE SET typeName=? WHERE typeID=?'
         var body = req.body;
         var param = [body.newTypeName, body.typeID];
@@ -84,7 +84,7 @@ router.post('/delete', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'DELETE FROM TYPE WHERE typeID=?'
         var body = req.body;
         var param = [body.typeID];
@@ -109,7 +109,7 @@ router.post('/deletes', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'DELETE FROM TYPE WHERE typeID=?'
         var body = req.body;
 

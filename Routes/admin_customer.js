@@ -6,7 +6,7 @@ const { logger } = require('../Config/winston')
 
 router.get('/', (req, res, next) => {
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'SELECT customerID, customerName FROM CUSTOMER ORDER BY customerName;';
 
         conn.query(sql, (err, rows, fields) => {
@@ -35,7 +35,7 @@ router.post('/create', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'INSERT INTO CUSTOMER(customerName) VALUES(?);';
         var body = req.body;
         var param = [body.customerName];
@@ -68,7 +68,7 @@ router.post('/modify', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'UPDATE CUSTOMER SET customerName=? WHERE customerID=?'
         var body = req.body;
         var param = [body.newCustomerName, body.customerID];
@@ -95,7 +95,7 @@ router.post('/delete', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'DELETE FROM CUSTOMER WHERE customerID=?'
         var body = req.body;
         var param = [body.customerID];
@@ -121,7 +121,7 @@ router.post('/deletes', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'DELETE FROM CUSTOMER WHERE customerID=?'
         var body = req.body;
 

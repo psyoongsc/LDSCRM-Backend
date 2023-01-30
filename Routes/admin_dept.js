@@ -6,7 +6,7 @@ const { logger } = require('../Config/winston')
 
 router.get('/', (req, res, next) => {
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'SELECT deptID, deptName FROM DEPT ORDER BY deptName;';
 
         conn.query(sql, (err, rows, fields) => {
@@ -31,7 +31,7 @@ router.post('/create', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'INSERT INTO DEPT(deptName) VALUES(?);';
         var body = req.body;
         var param = [body.deptName];
@@ -64,7 +64,7 @@ router.post('/modify', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'UPDATE DEPT SET deptName=? WHERE deptID=?'
         var body = req.body;
         var param = [body.newDeptName, body.deptID];
@@ -91,7 +91,7 @@ router.post('/delete', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'DELETE FROM DEPT WHERE deptID=?'
         var body = req.body;
         var param = [body.deptID];
@@ -117,7 +117,7 @@ router.post('/deletes', (req, res, next) => {
         return;
     }
 
-    getConnection((conn) => {
+    getConnection(res, (conn) => {
         var sql = 'DELETE FROM DEPT WHERE deptID=?'
         var body = req.body;
 
